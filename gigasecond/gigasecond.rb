@@ -1,5 +1,6 @@
 class Gigasecond
+  GIGASECOND = 10**9
   def self.from(time_of_birth)
-    time_of_birth + 1000000000
+    time_of_birth + GIGASECOND
   end
 end
