@@ -1,15 +1,12 @@
 class Complement
-  COMPLEMENTS_FROM_DNA_TO_RNA = {
-    G: "C",
-    C: "G",
-    T: "A",
-    A: "U"
-  }
-  def self.of_dna(dnas)
-    rnas = ""
-    dnas.chars do |dna|
-      rnas << COMPLEMENTS_FROM_DNA_TO_RNA[dna.to_sym]
-    end
-    rnas
+  DNA_NUCLEOTIDES = 'GCTA'
+  RNA_NUCLEOTIDES = 'CGAU'
+
+  def self.of_dna(strand)
+    strand.tr(DNA_NUCLEOTIDES, RNA_NUCLEOTIDES)
+  end
+
+  def self.of_rna(strand)
+    strand.tr(RNA_NUCLEOTIDES, DNA_NUCLEOTIDES)
   end
 end
