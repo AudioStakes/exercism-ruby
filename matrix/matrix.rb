@@ -1,16 +1,15 @@
 class Matrix
-  attr_reader :rows, :columns
-  def initialize(numbers)
-    @rows = []
-    numbers.scan(/[\d| ]+/).map do |i|
-      @rows << i.scan(/\d+/).map(&:to_i)
-    end
+  def initialize(matrix_string)
+    @matrix_string = matrix_string
+  end
 
-    @columns = Array.new(@rows[0].size).map{Array.new(@rows.size,0)}
-    @rows.each_with_index do |row, i|
-      row.size.times do |j|
-        @columns[j][i] = row[j]
-      end
+  def rows
+    @matrix_string.each_line.map do |line|
+      line.chomp.split.map(&:to_i)
     end
+  end
+
+  def columns
+    rows.transpose
   end
 end
