@@ -1,14 +1,10 @@
 class Series
-  def initialize(num_str)
-    @num_str = num_str
+  def initialize(numbers)
+    @numbers = numbers
   end
 
-  def slices(n)
-    raise ArgumentError if n > @num_str.size
-    digits = []
-    (@num_str.size - n + 1).times do |i|
-      digits << @num_str[i..(i + n - 1)]
-    end
-    digits
+  def slices(length)
+    raise ArgumentError if length > @numbers.size
+    @numbers.chars.each_cons(length).map(&:join)
   end
 end
