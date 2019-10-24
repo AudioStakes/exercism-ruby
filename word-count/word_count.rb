@@ -1,9 +1,9 @@
 class Phrase
-  def initialize(word)
-    @word = word
+  def initialize(phrase)
+    @phrase = phrase.downcase
   end
 
   def word_count
-    @word.scan(/\w+'?\w|\d/).map(&:downcase).group_by(&:itself).map{ |key, value| [key, value.count] }.to_h
+    @phrase.scan(/\b[\w']+\b/).group_by(&:itself).transform_values(&:count)
   end
 end
