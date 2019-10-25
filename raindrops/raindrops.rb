@@ -1,18 +1,10 @@
 class Raindrops
-  def self.convert(digit)
-    output = ""
-    if digit % 3 == 0
-      output << "Pling"
+  RAINDROPS = {3 => "Pling", 5 => "Plang", 7 => "Plong" }
+  def self.convert(number)
+    sounds = ""
+    RAINDROPS.each do |factor, sound|
+      sounds << sound if number % factor == 0
     end
-    if digit % 5 == 0
-      output << "Plang"
-    end
-    if digit % 7 == 0
-      output << "Plong"
-    end
-    if digit % 3 != 0 && digit % 5 != 0 && digit % 7 != 0
-      output = digit.to_s
-    end
-    output
+    sounds.empty? ? number.to_s : sounds
   end
 end
