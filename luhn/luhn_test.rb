@@ -15,7 +15,7 @@ class LuhnTest < Minitest::Test
 
   def test_a_simple_valid_sin_that_remains_valid_if_reversed
     # skip
-    refute Luhn.valid?("059")
+    assert Luhn.valid?("059")
   end
 
   def test_a_simple_valid_sin_that_becomes_invalid_if_reversed
@@ -25,7 +25,7 @@ class LuhnTest < Minitest::Test
 
   def test_a_valid_canadian_sin
     # skip
-    refute Luhn.valid?("055 444 285")
+    assert Luhn.valid?("055 444 285")
   end
 
   def test_invalid_canadian_sin
@@ -75,7 +75,7 @@ class LuhnTest < Minitest::Test
 
   def test_input_digit_9_is_correctly_converted_to_output_digit_9
     # skip
-    refute Luhn.valid?("091")
+    assert Luhn.valid?("091")
   end
 
   def test_strings_with_non_digits_is_invalid
