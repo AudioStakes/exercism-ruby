@@ -1,10 +1,8 @@
 class Hamming
-  def self.compute(one_nucleotide, another_nucleotide)
-    raise ArgumentError if one_nucleotide.size != another_nucleotide.size
-    hamming_distance = 0
-    one_nucleotide.chars.each_with_index do |base, i|
-      hamming_distance += 1 if one_nucleotide.chars[i] != another_nucleotide.chars[i]
+  def self.compute(strand1, strand2)
+    raise ArgumentError if strand1.size != strand2.size
+    strand1.chars.zip(strand2.chars).count do |nucleotide1, nucleotide2|
+      nucleotide1 != nucleotide2
     end
-    hamming_distance
   end
 end
