@@ -7,14 +7,14 @@ class Tournament
       user1 = User.find_or_create(match_result[1])
       case match_result[2].chomp
       when "win" then
-        user0.won += 1
-        user1.lost += 1
+        user0.win
+        user1.loss
       when "loss" then
-        user0.lost += 1
-        user1.won += 1
+        user0.loss
+        user1.win
       when "draw" then
-        user0.drawn += 1
-        user1.drawn += 1
+        user0.draw
+        user1.draw
       end
     end
     <<~TALLY
@@ -27,29 +27,45 @@ class User
   @@users = []
   attr_reader :name
   attr_accessor :won, :drawn, :lost
+
+  private
   def initialize(name)
     @name = name
     @won, @drawn, @lost = 0, 0, 0
     @@users << self
   end
 
+  public
+  def outcome
+    outcome = "\n"
+    outcome << [\
+      name.ljust(30)\
+      ,match_played.to_s.rjust(2)\
+      ,won.to_s.rjust(2)\
+      ,drawn.to_s.rjust(2)\
+      ,lost.to_s.rjust(2)\
+      ,point.to_s.rjust(2)\
+    ].join(" | ")
+  end
+
+  def win
+    self.won += 1
+  end
+
+  def loss
+    self.lost += 1
+  end
+
+  def draw
+    self.drawn += 1
+  end
+
   def point
-    @won * 3 + @drawn
+    won * 3 + drawn
   end
 
   def match_played
-    @won + @drawn + @lost
-  end
-
-  def outcome
-    outcome = "\n"
-    outcome <<  @name.ljust(30) + " | "
-    outcome <<  match_played.to_s.rjust(2) + " | "
-    outcome <<  @won.to_s.rjust(2) + " | "
-    outcome <<  @drawn.to_s.rjust(2) + " | "
-    outcome <<  @lost.to_s.rjust(2) + " | "
-    outcome <<  point.to_s.rjust(2)
-    outcome
+    won + drawn + lost
   end
 
   def self.users=(users)
@@ -61,25 +77,14 @@ class User
   end
 
   def self.users_sort
-    @@users.sort do |a, b|
-      (b.point <=> a.point).nonzero? ||
-        (a.name <=> b.name)
-    end
+    @@users.sort { |a, b| (b.point <=> a.point).nonzero? || (a.name <=> b.name) }
   end
 
   def self.find_or_create(name)
-    user = @@users.find {|user| user.name == name}
-    if user.nil?
-      user = User.new(name)
-    end
-    user
+    @@users.find {|user| user.name == name} || User.new(name)
   end
 
   def self.results
-    results = ""
-    self.users_sort.each do |user|
-      results << user.outcome
-    end
-    results
+    self.users_sort.map(&:outcome).join
   end
 end
