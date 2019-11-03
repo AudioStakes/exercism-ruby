@@ -1,15 +1,16 @@
 class Squares
-  attr_reader :number
-  def initialize(number)
-    @number = number
+  attr_reader :numbers
+
+  def initialize(n)
+    @numbers = 1..n
   end
 
   def square_of_sum
-    (1..number).sum ** 2
+    numbers.sum ** 2
   end
 
   def sum_of_squares
-    (1..number).sum{|n| n ** 2}
+    numbers.sum{|n| n ** 2}
   end
 
   def difference
