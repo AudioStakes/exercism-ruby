@@ -1,11 +1,19 @@
 require 'prime'
 
 class Sieve
-  def initialize(number)
-    @number = number
+  def initialize(limit)
+    @limit = limit
   end
 
   def primes
-    Prime.each(@number).to_a
+    @primes = []
+    n = 2
+    while n <= @limit do
+      if @primes.all? { |prime| n % prime != 0 }
+        @primes << n
+      end
+      n += 1
+    end
+    @primes
   end
 end
