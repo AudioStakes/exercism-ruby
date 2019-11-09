@@ -1,38 +1,29 @@
 class Bob
   def self.hey(remark)
-    new(remark).hey
-  end
-
-  def hey
-    if silent?
-      "Fine. Be that way!"
-    elsif yell? && question?
+    remark = remark.to_s.strip
+    if yelling?(remark) && question?(remark)
       "Calm down, I know what I'm doing!"
-    elsif yell? && !question?
+    elsif yelling?(remark)
       "Whoa, chill out!"
-    elsif !yell? && question?
+    elsif question?(remark)
       "Sure."
+    elsif silent?(remark)
+      "Fine. Be that way!"
     else
       "Whatever."
     end
   end
 
   private
-  def initialize(remark)
-    @remark = remark.scan(/[^ |\t|\n|\r|\f]/)
-    @end_of_remark = @remark.pop
+  def self.silent?(remark)
+    remark.empty?
   end
 
-  def silent?
-    @remark.size == 0
+  def self.yelling?(remark)
+    /[a-zA-Z]/ === remark && remark.upcase == remark
   end
 
-  def yell?
-    @remark.grep(/[a-zA-Z]/).size > 0 &&
-    @remark.grep(/[a-zA-Z]/).all? {|char| /[A-Z]/ === char}
-  end
-
-  def question?
-    @end_of_remark == "?"
+  def self.question?(remark)
+    remark.end_with?('?')
   end
 end
