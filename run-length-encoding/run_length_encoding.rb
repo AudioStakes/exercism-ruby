@@ -1,5 +1,5 @@
 class RunLengthEncoding
-  attr_reader :input_chars
+  attr_reader :input_array
 
   def self.encode(input)
     new(input).encode
@@ -10,17 +10,17 @@ class RunLengthEncoding
   end
 
   def initialize(input)
-    @input_chars = input.chars
+    @input_array = input.scan(/\D|\d+/)
   end
 
   def encode
     encoded = ""
     count = 1
-    input_chars.each_with_index do |char, i|
-      if input_chars[i] == input_chars[i+1]
+    input_array.each_with_index do |char, i|
+      if input_array[i] == input_array[i+1]
         count += 1
       else
-        count_char = count > 1 ? count.to_s + input_chars[i] : input_chars[i]
+        count_char = count > 1 ? count.to_s + input_array[i] : input_array[i]
         encoded << count_char
         count = 1
       end
@@ -30,19 +30,14 @@ class RunLengthEncoding
 
   def decode
     decoded = ""
-    input_plus1 = []
-    input_chars.each_with_index do |char, i|
-      if i == 0 && /[^0-9]/ === input_chars[i]
-        input_plus1 << "1" + input_chars[i]
-      elsif i > 0 && /[^0-9]/ === input_chars[i] && /[^0-9]/ === input_chars[i-1]
-        input_plus1 << "1" + input_chars[i]
-      else
-        input_plus1 << input_chars[i]
-      end
-    end
-    input_plus1.join.scan(/[0-9]+/).zip(input_plus1.join.scan(/[^0-9]+/)).each do |count, char|
-      count.to_i.times do
-        decoded << char
+    input_array.each_with_index do |char, i|
+      prev_char = input_array[i-1]
+      if /\D/ === char
+        if  /\d+/ === prev_char
+          decoded << char * prev_char.to_i
+        else
+          decoded << char
+        end
       end
     end
     decoded
