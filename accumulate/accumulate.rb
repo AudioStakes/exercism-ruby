@@ -1,12 +1,7 @@
 class Array
-  def accumulate!(&block)
-    self.each_with_index do |number, i|
-      self[i] = block.call(number)
+  def accumulate
+    Array.new(length) do |x|
+      yield self[ x ]
     end
-  end
-
-  def accumulate(&block)
-    copy = self.dup
-    copy.accumulate!(&block)
   end
 end
