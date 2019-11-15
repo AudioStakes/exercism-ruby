@@ -4,13 +4,11 @@ class SumOfMultiples
     @numbers = numbers
   end
 
-  def to(max)
-    (1..max-1).inject(0) do |sum, multiple|
-      if numbers.any? { |n| multiple % n == 0 }
-        sum + multiple
-      else
-        sum
-      end
-    end
+  def to(limit)
+    (1..limit-1).select{ |n| multiple? n }.inject(0, :+)
+  end
+
+  def multiple?(n)
+    numbers.any? { |x| n % x == 0 }
   end
 end
