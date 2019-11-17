@@ -1,32 +1,20 @@
 class School
-  attr_reader :students_all
+  attr_reader :db
 
   def initialize
-    @students_all = []
+    @db = Hash.new { [] }
+  end
+
+  def add(student, grade)
+    db[grade] <<= student
+    db[grade].sort!
   end
 
   def students(grade)
-    students_all
-      .select { |s| s.grade == grade}
-      .map(&:name)
-      .sort
+    db[grade]
   end
 
   def students_by_grade
-    students_all.map(&:grade).uniq.sort.map do |grade|
-      { grade: grade, students: students(grade) }
-    end
-  end
-
-  def add(student_name, grade)
-    students_all << Student.new(student_name, grade)
-  end
-end
-
-class Student
-  attr_reader :name, :grade
-  def initialize(name, grade)
-    @name = name
-    @grade = grade
+    db.sort.map { |grade, students| { grade: grade, students: students } }
   end
 end
