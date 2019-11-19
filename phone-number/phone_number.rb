@@ -1,29 +1,8 @@
 class PhoneNumber
-  attr_accessor :input, :output
+  VALID_PHONE_NUMBER = /^([2-9]\d\d){2}\d{4}$/
 
   def self.clean(phone_number)
-    self.new(phone_number).clean
-  end
-
-  def initialize(phone_number)
-    @input = phone_number
-  end
-
-  def clean
-    @output = input.gsub(/[^\d]/) { |match| "" }
-    remove_country_code
-    valid? ? output : nil
-  end
-
-  def valid?
-    output != input\
-    && output[0].to_i.between?(2, 9)\
-    && output[3].to_i.between?(2, 9)
-  end
-
-  def remove_country_code
-    if output[0] == "1" && output.size == 11
-      @output = output[1..-1]
-    end
+    cleaned = phone_number.gsub(/\D/, "").sub(/^1(\d{10})$/, "\\1")
+    cleaned[VALID_PHONE_NUMBER]
   end
 end
