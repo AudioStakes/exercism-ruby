@@ -1,9 +1,9 @@
 class Array
   def keep
-    select { |n| yield n }
+    inject([]) { |result, n| result << n if yield n; result }
   end
 
   def discard
-    reject { |n| yield n }
+    inject([]) { |result, n| result << n unless yield n; result }
   end
 end
