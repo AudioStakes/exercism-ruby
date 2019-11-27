@@ -1,33 +1,28 @@
 class BeerSong
-  def self.recite(beers, takes)
-    lyrics = ""
-    (1..takes).reverse_each do |n|
-      existing_beers = beers-(takes-n)
-      remaining_beers = existing_beers-1
-      existing = ""
-      takedown = ""
-      remaining = ""
-      if existing_beers > 2 then
-        existing = "#{existing_beers} bottles"
-        takedown = "Take one down and pass it around"
-        remaining = "#{remaining_beers} bottles"
-      elsif existing_beers == 2 then
-        existing = "#{existing_beers} bottles"
-        takedown = "Take one down and pass it around"
-        remaining = "1 bottle"
-      elsif existing_beers == 1 then
-        existing = "1 bottle"
-        takedown = "Take it down and pass it around"
-        remaining = "no more bottles"
-      elsif existing_beers == 0 then
-        existing = "No more bottles"
-        takedown = "Go to the store and buy some more"
-        remaining = "99 bottles"
+  def self.recite(bottles, verses)
+    bottles.downto(0).take(verses).map do |n|
+      case n
+      when 0
+        "No more bottles of beer on the wall, " +
+        "no more bottles of beer.\n" +
+        "Go to the store and buy some more, " +
+        "99 bottles of beer on the wall.\n"
+      when 1
+        "1 bottle of beer on the wall, " +
+        "1 bottle of beer.\n" +
+        "Take it down and pass it around, " +
+        "no more bottles of beer on the wall.\n"
+      when 2
+        "2 bottles of beer on the wall, " +
+        "2 bottles of beer.\n" +
+        "Take one down and pass it around, " +
+        "1 bottle of beer on the wall.\n"
+      else
+        "#{n} bottles of beer on the wall, " +
+        "#{n} bottles of beer.\n" +
+        "Take one down and pass it around, " +
+        "#{n-1} bottles of beer on the wall.\n"
       end
-      lyrics << "\n" if n != takes
-      lyrics << "#{existing} of beer on the wall, #{existing.downcase} of beer.\n"
-      lyrics << "#{takedown}, #{remaining} of beer on the wall.\n"
-    end
-    lyrics
+    end.join("\n")
   end
 end
