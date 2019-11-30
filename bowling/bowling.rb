@@ -10,7 +10,8 @@ class Game
   end
 
   def roll(pins)
-    @pins = pins if pins_valid?(pins)
+    raise BowlingError unless pins_valid?(pins)
+    @pins = pins
     @throws.push(pins)
     if is_first_throw_in_frame?
       if @flames.size > 1 && @flames.last.first == 10 && @flames[-2].first == 10
@@ -31,7 +32,8 @@ class Game
   end
 
   def score
-    @flames.flatten.sum + @bonus if score_valid?(score)
+    raise BowlingError unless score_valid?
+    @flames.flatten.sum + @bonus
   end
 
   def is_first_throw_in_frame?
@@ -43,20 +45,25 @@ class Game
   end
 
   def pins_valid?(pins)
-    raise BowlingError unless pins.between?(0, 10)
+    return false unless pins.between?(0, 10)
+    return false if @flames.size == 10
     if @throws.size == 1 && @flames.size.between?(0, 8)
-      raise BowlingError unless (pins + @throws[-1]).between?(0, 10)
+      return false unless (pins + @throws[-1]).between?(0, 10)
     elsif @flames.size == 9 && @throws.size == 1 && @throws[-1] != 10
-      raise BowlingError unless (pins + @throws[-1]).between?(0, 10)
+      return false unless (pins + @throws[-1]).between?(0, 10)
     elsif @flames.size == 9 && @throws.size == 2 && @throws[-1] != 10 && @throws[-2] == 10
-      raise BowlingError unless (pins + @throws[-1]).between?(0, 10)
+      return false unless (pins + @throws[-1]).between?(0, 10)
     elsif @flames.size == 9 && @throws.size == 2 && @throws[-2] == 10
-      raise BowlingError unless (pins + @throws[-1]).between?(10, 20)
+      return false unless (pins + @throws[-1]).between?(10, 20)
     elsif @flames.size == 9
-      raise BowlingError unless (pins + @throws.sum).between?(0, 30)
+      return false unless (pins + @throws.sum).between?(0, 30)
     end
+    return true
   end
 
   def score_valid?
+    return false unless @flames.flatten.size > 0
+    return false unless @flames.size == 10
+    return true
   end
 end
