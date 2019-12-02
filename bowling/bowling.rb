@@ -4,66 +4,90 @@ class Game
   end
 
   def initialize
-    @throws = []
+    @current_frame = []
     @flames = []
     @bonus = 0
   end
 
   def roll(pins)
-    raise BowlingError unless pins_valid?(pins)
-    @pins = pins
-    @throws.push(pins)
-    if is_first_throw_in_frame?
-      if @flames.size > 1 && @flames.last.first == 10 && @flames[-2].first == 10
-        @bonus += pins * 2
-      elsif @flames.last.sum == 10
+    check_pins(pins)
+    @current_frame << pins
+    check_frame
+
+    if @flames.size >= 1
+      if strike?(@flames.last) || (spare?(@flames.last) && first_throw?)
         @bonus += pins
       end
-    elsif is_second_throw_in_frame?
-      @bonus += pins if @flames.last.first == 10
     end
-    if (pins == 10 && @flames.size.between?(0, 8))\
-      || (@throws.size == 2 && @flames.size.between?(0, 8))\
-      || (@throws.size == 2 && @flames.size == 9 && @throws.sum != 10 && @throws.first != 10)\
-      || @throws.size == 3
-      @flames.push(@throws)
-      @throws = []
+    if @flames.size >= 2
+      if strike?(@flames.last) && strike?(@flames[-2]) && first_throw? && !final_frame?
+        @bonus += pins
+      end
     end
+
+    return unless flame_finished?
+
+    @flames.push(@current_frame)
+    @current_frame = []
   end
 
   def score
-    raise BowlingError unless score_valid?
+    check_score
     @flames.flatten.sum + @bonus
   end
 
-  def is_first_throw_in_frame?
-    @throws.size == 1 && @flames.size.between?(1, 9)
+  def first_throw?
+    @current_frame.size == 1
   end
 
-  def is_second_throw_in_frame?
-    @throws.size == 2 && @flames.size.between?(1, 9)
+  def second_throw?
+    @current_frame.size == 2
   end
 
-  def pins_valid?(pins)
-    return false unless pins.between?(0, 10)
-    return false if @flames.size == 10
-    if @throws.size == 1 && @flames.size.between?(0, 8)
-      return false unless (pins + @throws[-1]).between?(0, 10)
-    elsif @flames.size == 9 && @throws.size == 1 && @throws[-1] != 10
-      return false unless (pins + @throws[-1]).between?(0, 10)
-    elsif @flames.size == 9 && @throws.size == 2 && @throws[-1] != 10 && @throws[-2] == 10
-      return false unless (pins + @throws[-1]).between?(0, 10)
-    elsif @flames.size == 9 && @throws.size == 2 && @throws[-2] == 10
-      return false unless (pins + @throws[-1]).between?(10, 20)
-    elsif @flames.size == 9
-      return false unless (pins + @throws.sum).between?(0, 30)
+  def third_throw?
+    @current_frame.size == 3 && final_frame?
+  end
+
+  def final_frame?
+    @flames.size == 9
+  end
+
+  def strike?(flame)
+    flame.size == 1 && flame.first == 10
+  end
+
+  def spare?(flame)
+    flame.size == 2 && flame.sum == 10
+  end
+
+  def flame_finished?
+    (strike?(@current_frame) && !final_frame?)\
+    || (second_throw? && !final_frame?)\
+    || (second_throw? && final_frame? && @current_frame.sum < 10)\
+    || third_throw?
+  end
+
+  def check_pins(pins)
+    raise BowlingError unless pins.between?(0, 10)
+    raise BowlingError unless @flames.size.between?(0, 9)
+  end
+
+  def check_frame
+    if !final_frame? && second_throw?
+      raise BowlingError unless @current_frame.sum.between?(0, 10)
+    elsif final_frame? && second_throw? && @current_frame.first < 10
+      raise BowlingError unless @current_frame.sum.between?(0, 10)
+    elsif final_frame? && third_throw? && @current_frame.first == 10 && @current_frame[1] < 10
+      raise BowlingError unless @current_frame.sum.between?(10, 20)
+    elsif final_frame? && third_throw? && @current_frame.first == 10 && @current_frame[1] == 10
+      raise BowlingError unless @current_frame.sum.between?(20, 30)
+    elsif final_frame?
+      raise BowlingError unless @current_frame.sum.between?(0, 30)
     end
-    return true
   end
 
-  def score_valid?
-    return false unless @flames.flatten.size > 0
-    return false unless @flames.size == 10
-    return true
+  def check_score
+    raise BowlingError unless @flames.flatten.size > 0
+    raise BowlingError unless @flames.size == 10
   end
 end
