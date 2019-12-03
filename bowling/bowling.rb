@@ -1,93 +1,124 @@
 class Game
-
-  class BowlingError < StandardError
-  end
-
+  attr_reader :frames
   def initialize
-    @current_frame = []
-    @flames = []
-    @bonus = 0
+    @frames = Array.new(9){ Frame.new }
+    @frames << TenthFrame.new
+    @current_frame = 1
   end
 
   def roll(pins)
-    check_pins(pins)
-    @current_frame << pins
-    check_frame
-
-    if @flames.size >= 1
-      if strike?(@flames.last) || (spare?(@flames.last) && first_throw?)
-        @bonus += pins
-      end
-    end
-    if @flames.size >= 2
-      if strike?(@flames.last) && strike?(@flames[-2]) && first_throw? && !final_frame?
-        @bonus += pins
-      end
-    end
-
-    return unless flame_finished?
-
-    @flames.push(@current_frame)
-    @current_frame = []
+    raise BowlingError if frames.all? { |frame| frame.complete? }
+    frames[@current_frame - 1].roll(pins)
+    @current_frame += 1 if frames[@current_frame - 1].complete?
   end
 
   def score
-    check_score
-    @flames.flatten.sum + @bonus
+    raise BowlingError unless frames.all? { |frame| frame.complete? }
+    @socre = 0
+    frames.each_with_index do |frame, n|
+      if frame.strike? && n < 9
+        if frames[n + 1].strike? && n < 8
+          @bonus = 10 + frames[n + 2].roll_one
+        else
+          @bonus = frames[n + 1].roll_one+ frames[n + 1].roll_two
+        end
+      elsif frame.spare? && n < 9
+        @bonus = frames[n + 1].roll_one
+      else
+        @bonus = 0
+      end
+      @socre += frame.score(@bonus)
+    end
+    @socre
   end
 
-  def first_throw?
-    @current_frame.size == 1
-  end
+  class Frame
+    attr_reader :roll_one, :roll_two
+    def initialize
+      @roll_one = nil
+      @roll_two = nil
+    end
 
-  def second_throw?
-    @current_frame.size == 2
-  end
+    def roll(pins)
+      raise BowlingError unless pins.between?(0, 10)
+      if roll_one.nil?
+        @roll_one = pins
+      else
+        raise BowlingError unless (roll_one + pins).between?(0, 10)
+        @roll_two = pins
+      end
+    end
 
-  def third_throw?
-    @current_frame.size == 3 && final_frame?
-  end
+    def score(bonus)
+      if strike?
+        10 + bonus
+      else
+        roll_one + roll_two + bonus
+      end
+    end
 
-  def final_frame?
-    @flames.size == 9
-  end
+    def strike?
+      roll_one == 10
+    end
 
-  def strike?(flame)
-    flame.size == 1 && flame.first == 10
-  end
+    def spare?
+      roll_one + roll_two == 10
+    end
 
-  def spare?(flame)
-    flame.size == 2 && flame.sum == 10
-  end
-
-  def flame_finished?
-    (strike?(@current_frame) && !final_frame?)\
-    || (second_throw? && !final_frame?)\
-    || (second_throw? && final_frame? && @current_frame.sum < 10)\
-    || third_throw?
-  end
-
-  def check_pins(pins)
-    raise BowlingError unless pins.between?(0, 10)
-    raise BowlingError unless @flames.size.between?(0, 9)
-  end
-
-  def check_frame
-    if !final_frame? && second_throw?
-      raise BowlingError unless @current_frame.sum.between?(0, 10)
-    elsif final_frame? && second_throw? && @current_frame.first < 10
-      raise BowlingError unless @current_frame.sum.between?(0, 10)
-    elsif final_frame? && third_throw? && @current_frame.first == 10 && @current_frame[1] < 10
-      raise BowlingError unless @current_frame.sum.between?(10, 20)
-    elsif final_frame? && third_throw? && @current_frame.first == 10 && @current_frame[1] == 10
-      raise BowlingError unless @current_frame.sum.between?(20, 30)
-    elsif final_frame?
-      raise BowlingError unless @current_frame.sum.between?(0, 30)
+    def complete?
+      strike? || roll_one && roll_two
     end
   end
 
-  def check_score
-    raise BowlingError unless @flames.flatten.size > 0
-    raise BowlingError unless @flames.size == 10
+  class TenthFrame < Frame
+    attr_reader :roll_one, :roll_two, :roll_three
+    def initialize
+      super
+      @roll_three = nil
+    end
+
+    def roll(pins)
+      raise BowlingError unless pins.between?(0, 10)
+      if roll_one.nil?
+        @roll_one = pins
+      elsif roll_two.nil?
+        if strike?
+          raise BowlingError unless (roll_one + pins).between?(10, 20)
+        else
+          raise BowlingError unless (roll_one + pins).between?(0, 10)
+        end
+        @roll_two = pins
+      else
+        if double_strike?
+          raise BowlingError unless (roll_two + pins).between?(10, 20)
+        elsif strike?
+          raise BowlingError unless (roll_two + pins).between?(0, 10)
+        end
+        @roll_three = pins
+      end
+    end
+
+    def score(bonus)
+      if roll_three
+        roll_one + roll_two + roll_three
+      else
+        roll_one + roll_two
+      end
+    end
+
+    def double_strike?
+      roll_one = 10 && roll_two == 10
+    end
+
+    def complete?
+      if !roll_two
+        return false
+      else
+        roll_one + roll_two < 10 || roll_one && roll_two && roll_three
+      end
+    end
+  end
+
+  class BowlingError < StandardError
   end
 end
