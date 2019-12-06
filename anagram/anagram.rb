@@ -1,13 +1,23 @@
 class Anagram
-  def initialize(word)
-    @word = word.downcase
-    @chars = word.downcase.chars.sort
+  def match(candidates)
+    candidates.select { |candidate| anagram?(candidate) && !identical?(candidate) }
   end
 
-  def match(candidates)
-    candidates.select do |candidate|
-      candidate.downcase.chars.sort == @chars\
-      && candidate.downcase != @word
-    end
+  private
+  attr_reader :word
+  def initialize(word)
+    @word = word
+  end
+
+  def anagram?(candidate)
+    sorted_chars_of(candidate) == sorted_chars_of(word)
+  end
+
+  def identical?(candidate)
+    candidate.downcase == word.downcase
+  end
+
+  def sorted_chars_of(string)
+    string.downcase.chars.sort
   end
 end
