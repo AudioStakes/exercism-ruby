@@ -1,79 +1,27 @@
 class Bst
-  attr_reader :root, :point
-  def initialize(number)
-    @root = Node.new(number)
-    @point = root
+  attr_reader :left, :right, :data
+  def initialize(data)
+    @data = data
   end
 
-  def insert(number)
-    @inserted = false
-    @insert_point = root
-    while !@inserted do
-      if @insert_point.number < number
-        if @insert_point.right.nil?
-          @insert_point.right = Node.new(number)
-          @inserted = true
-        else
-          @insert_point = @insert_point.right
-        end
-      else
-        if @insert_point.left.nil?
-          @insert_point.left = Node.new(number)
-          @inserted = true
-        else
-          @insert_point = @insert_point.left
-        end
-      end
-    end
+  def insert(new_data)
+    new_data <= data ? insert_left(new_data) : insert_right(new_data)
   end
 
-  def data
-    point.number
+  def each(&block)
+    return enum_for(:each) unless block_given?
+    @left.each(&block) if @left
+    yield data
+    @right.each(&block) if @right
   end
 
-  def left
-    point.left
+private
+
+  def insert_left(new_data)
+    @left ? @left.insert(new_data) : instance_variable_set("@left", self.class.new(new_data))
   end
 
-  def right
-    point.right
-  end
-
-  def each
-    if block_given?
-      root.list.each { |n| yield n}
-    else
-      root.list.map!
-    end
-  end
-end
-
-class Node
-  attr_reader :number
-  attr_accessor :left, :right
-  def initialize(number)
-    @number = number
-    @left = nil
-    @right = nil
-  end
-
-  def data
-    number
-  end
-
-  def list
-    if self.left
-      left = self.left.list
-    else
-      left = []
-    end
-    center = [self.number]
-    right = self.right.list if self.right
-    if self.right
-      right = self.right.list
-    else
-      right = []
-    end
-    left + center + right
+  def insert_right(new_data)
+    @right ? @right.insert(new_data) : instance_variable_set("@right", self.class.new(new_data))
   end
 end
