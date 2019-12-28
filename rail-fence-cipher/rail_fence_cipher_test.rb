@@ -25,29 +25,29 @@ class RailFenceCipherTest < Minitest::Test
   end
 
   def test_encode_with_ending_in_the_middle
-    skip
+    # skip
     assert_equal 'ESXIEECSR', RailFenceCipher.encode('EXERCISES', 4)
   end
 
   def test_encode_with_less_letters_than_rails
-    skip
+    # skip
     assert_equal 'More rails than letters',
                  RailFenceCipher.encode('More rails than letters', 24)
   end
 
   def test_decode_with_empty_string
-    skip
+    # skip
     assert_equal '', RailFenceCipher.decode('', 4)
   end
 
   def test_decode_with_one_rail
-    skip
+    # skip
     assert_equal 'ABCDEFGHIJKLMNOP',
                  RailFenceCipher.decode('ABCDEFGHIJKLMNOP', 1)
   end
 
   def test_decode_with_two_rails
-    skip
+    # skip
     assert_equal 'XOXOXOXOXOXOXOXOXO',
                  RailFenceCipher.decode('XXXXXXXXXOOOOOOOOO', 2)
   end
