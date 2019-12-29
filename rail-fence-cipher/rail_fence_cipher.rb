@@ -24,7 +24,28 @@ class RailFenceCipher
   def self.decode(message, stages)
     return message if stages == 1
     zig_zag = stages * 2 - 2
-    middle_zig_zag = zig_zag / 2
-    p message.size
+    middle_zig_zag = zig_zag / 2 + 1
+    multiple, amari = message.size.divmod(zig_zag)
+    hash = {}
+    @message_chars = message.chars
+    (1..stages).each do |stage|
+      if stage == 1 || stage == stages
+        num = multiple
+      else
+        num = multiple * 2
+      end
+      if stage <= amari
+        num += 1
+      end
+      hash[stage] = @message_chars.slice!(0, num)
+    end
+    array = []
+    while hash[1].size != 0 do
+      (1..zig_zag).each do |stage|
+        stage = middle_zig_zag * 2 - stage if stage > middle_zig_zag
+        array << hash[stage].shift
+      end
+    end
+    array.join
   end
 end
